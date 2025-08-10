@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livre d'Anniversaire - Joyeux Anniversaire !</title>
+    <link rel="stylesheet" href="css/book.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Dancing Script', cursive;
+            overflow-x: hidden;
+        }
+        
+        body {
+                display: flex; justify-content: center; align-items: center; height: 100vh; background: #ccc;
+            }
+            .book {
+                width: 600px; height: 400px; perspective: 2000px; position: relative;
+            }
+            .page {
+                width: 300px; height: 100%; position: absolute; top: 0; 
+                transform-style: preserve-3d; transition: transform 1s ease;
+                box-shadow: 0 0 15px rgba(0,0,0,0.2);
+                background-size: cover;
+                background-position: center;
+            }
+            .page.right {
+                right: 0;
+                transform-origin: left center;
+            }
+            .page.left {
+                left: 0;
+                transform-origin: right center;
+            }
+            .turned.right {
+                transform: rotateY(-180deg);
+                z-index: 1;
+            }
+            .turned.left {
+                transform: rotateY(180deg);
+                z-index: 1;
+            }
+
+        
+        /* Animation des étoiles */
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle 1.5s infinite ease-in-out;
+        }
+
+        /* Animation du cœur */
+        .heart-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            perspective: 1200px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .heart {
+            position: relative;
+            width: 90vmin;
+            height: 90vmin;
+            max-width: 600px;
+            max-height: 600px;
+            transform-style: preserve-3d;
+        }
+        
+        .heart-photo {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            transform: rotateY(0deg) translateZ(0);
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+            opacity: 0;
+            backface-visibility: hidden;
+            object-fit: cover;
+        }
+        
+        /* Style spécifique pour la vidéo */
+        .heart-photo video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+        
+        .heart-message {
+            color: white;
+            font-size: 24px;
+            margin-top: 40px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease-out 0.5s;
+            max-width: 80%;
+            line-height: 1.5;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .show-heart .heart-photo {
+            opacity: 1;
+        }
+        
+        .show-heart .heart-message {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Fond étoilé -->
+    <div class="stars"></div>
+    
+    <!-- Livre -->
+    <div class="book">
+        <div class="page right" id="pageRight"></div>
+        <div class="page left" id="pageLeft"></div>
+    </div>
+    
+    <!-- Animation du cœur -->
+    <div class="heart-container" id="heartContainer">
+        <div class="heart" id="heart">
+            <!-- Les photos seront ajoutées dynamiquement -->
+        </div>
+        <div class="heart-message" id="heartMessage">
+            I yèlè togo tchai kagne <br>Tu es belle même, on dirait alloco 🤧
+        </div>
+    </div>
+
+    <script>
+        // Images dans l'ordre : index 0 = couverture, 1 et 2 = pages intérieures, 3 = fin
+        const pages = [
+            "uploads/page1.png", // couverture
+            "uploads/page2.jpeg", // page 1
+            "uploads/page3.jpg", // page 2
+            "uploads/page4.jpg",
+            "uploads/page5.gif",
+            "uploads/page6.jpeg",
+            "uploads/page7.jpg",
+            "uploads/page8.jpg",
+            "uploads/page9.jpg",
+            "uploads/page10.jpg",
+            "uploads/page11.jpg",
+            "uploads/page12.jpg"     // fin (4e de couverture)
+        ];
+
+        // Images pour former le cœur (remplacez par vos propres images)
+        const heartImages = [
+            "uploads/video.mp4"
+        ];
+
+        let currentIndex = 0;
+        const pageRight = document.getElementById("pageRight");
+        const pageLeft = document.getElementById("pageLeft");
+        const heartContainer = document.getElementById("heartContainer");
+        const heart = document.getElementById("heart");
+        const heartMessage = document.getElementById("heartMessage");
+
+        // Créer le motif du cœur avec des photos empilées
+        function createHeart() {
+            heart.innerHTML = ''; // Vider le cœur
+            
+            // Créer le conteneur de la vidéo
+            const videoContainer = document.createElement('div');
+            videoContainer.className = 'heart-photo';
+            videoContainer.style.opacity = '0';
+            videoContainer.style.transition = 'opacity 1s ease-in-out';
+            
+            // Créer l'élément vidéo
+            const videoElement = document.createElement('video');
+            videoElement.src = heartImages[0]; // La vidéo est le premier et seul élément
+            videoElement.autoplay = true;
+            videoElement.loop = true;
+            videoElement.muted = true;
+            videoElement.controls = false;
+            videoElement.style.width = '100%';
+            videoElement.style.height = '100%';
+            videoElement.style.objectFit = 'cover';
+            videoElement.style.borderRadius = '15px';
+            
+            videoContainer.appendChild(videoElement);
+            heart.appendChild(videoContainer);
+            
+            // Afficher la vidéo avec un léger délai
+            setTimeout(() => {
+                videoContainer.style.opacity = '1';
+            }, 500);
+        }
+        // Afficher l'animation du cœur
+        function showHeartAnimation() {
+            createHeart();
+            heartContainer.style.display = 'flex';
+            // Délai pour démarrer l'animation après l'affichage
+            setTimeout(() => {
+                heartContainer.classList.add('show-heart');
+            }, 100);
+        }
+
+        // Mise à jour affichage pages
+        function updatePages() {
+            if (currentIndex >= pages.length) {
+                // Dernière page atteinte, afficher le cœur
+                document.querySelector('.book').style.display = 'none';
+                showHeartAnimation();
+                return;
+            }
+
+            // page droite affiche pages[currentIndex]
+            pageRight.style.backgroundImage = `url('${pages[currentIndex]}')`;
+            pageRight.classList.remove("turned", "left", "right");
+            pageRight.classList.add("right");
+
+            // page gauche affiche pages[currentIndex - 1], ou vide si couverture
+            if (currentIndex > 0) {
+                pageLeft.style.backgroundImage = `url('${pages[currentIndex - 1]}')`;
+                pageLeft.classList.remove("turned", "left", "right");
+                pageLeft.classList.add("left");
+            } else {
+                pageLeft.style.backgroundImage = "none";
+            }
+        }
+
+        // Initialiser les pages au départ
+        updatePages();
+
+        // Tourner vers l'avant
+        function turnForward() {
+            if (currentIndex < pages.length) {
+                pageRight.classList.add("turned", "right");
+                currentIndex++;
+                setTimeout(() => {
+                    updatePages();
+                    pageRight.classList.remove("turned");
+                }, 1000);
+            }
+        }
+
+        // Tourner vers l'arrière
+        function turnBackward() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                pageLeft.classList.add("turned", "left");
+                setTimeout(() => {
+                    updatePages();
+                    pageLeft.classList.remove("turned");
+                    // Si on revient de l'animation du cœur
+                    if (currentIndex < pages.length - 1) {
+                        document.querySelector('.book').style.display = 'block';
+                        heartContainer.style.display = 'none';
+                        heartContainer.classList.remove('show-heart');
+                    }
+                }, 1000);
+            }
+        }
+
+        // Clic droite tourne en avant, clic gauche tourne en arrière
+        pageRight.addEventListener("click", turnForward);
+        pageLeft.addEventListener("click", turnBackward);
+        
+        // Navigation clavier
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight') {
+                turnForward();
+            } else if (e.key === 'ArrowLeft') {
+                turnBackward();
+            }
+        });
+
+        // Script pour créer les étoiles
+        document.addEventListener('DOMContentLoaded', function() {
+            const starsContainer = document.querySelector('.stars');
+            const numberOfStars = 100;
+            
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // Taille aléatoire entre 1 et 3 pixels
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Position aléatoire
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // Animation aléatoire
+                star.style.animationDelay = `${Math.random() * 2}s`;
+                star.style.animationDuration = `${Math.random() * 3 + 1}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        });
+    </script>
+</body>
+</html>

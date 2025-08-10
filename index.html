@@ -1,0 +1,455 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chúc Mừng Sinh Nhật! 🎉</title>
+    <meta name="language" content="zh-CN">
+    <meta name="description" content="Một lời chúc sinh nhật đặc biệt dành cho bạn! Hãy khám phá món quà ý nghĩa này!">
+
+    <!-- Favicon and Icons -->
+    <link rel="icon" href="image/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="image/logo.png">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Chúc Mừng Sinh Nhật! 🎂">
+    <meta property="og:description" content="Một món quà sinh nhật đầy yêu thương đang chờ bạn khám phá! Nhấn để xem lời chúc đặc biệt!">
+    <meta property="og:image" content="https://happybirthdaydeargift.vercel.app/image/logo.png">
+    <!-- <meta property="og:url" content="https://happybirthdaydeargift.vercel.app/?websiteId=686d4ef53c910ba1bee5ec5c"> -->
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Chúc Mừng Sinh Nhật! 🎂">
+    <meta name="twitter:description" content="Một món quà sinh nhật đầy yêu thương đang chờ bạn khám phá! Nhấn để xem lời chúc đặc biệt!">
+    <meta name="twitter:image" content="https://happybirthdaydeargift.vercel.app/image/birthday-gift.jpg">
+
+    <link rel="icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/sun0225SUN/photos/img/20210715233345.png">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/book.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="css-1?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="css2?family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="firebasejs/8.10.1/firebase-auth.js"></script>
+</head>
+
+<body>
+
+        <div id="userInfo" style="
+            display: none;
+            align-items: center;
+            padding: 8px 12px;
+            background: none;
+            border: 1px solid #dadce0;
+            border-radius: 24px;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        ">
+            <img id="userAvatar" style="
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                margin-right: 8px;
+            ">
+            <div style="margin-right: 12px;">
+                <div id="userName" style="font-weight: 500; color: #ffffff;"></div>
+                <div id="userEmail" style="font-size: 12px; color: #ffffff;"></div>
+            </div>
+            <button id="logoutBtn" style="padding: 4px 8px; background: none; border: 1px solid #dadce0; border-radius: 4px; font-size: 12px; cursor: pointer; color: #fbfbfc;" data-i18n="logout">Đăng xuất</button>
+        </div>
+    </div>
+
+
+
+
+    
+    <canvas id="matrix-rain" style="display: none;"></canvas>
+    <canvas style="position:absolute;width:100%;height:100%;z-index:9999;display:none;" class="canvas"></canvas>
+    <div class="overlay">
+        <div class="stars-container" id="starsContainer"></div>
+<!-- Removed the gif/happy3.gif animation as requested -->
+<!-- <img id="gift-image" src="gif/happy3.gif" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; max-width: 80%; max-height: 80%;"> -->
+        <div class="content-display" id="contentDisplay">
+            <p id="contentText"></p>
+        </div>
+        <div class="firework-container" id="fireworkContainer"></div>
+        <div class="book-container show" style="display: block;">
+            <div class="book" id="book" style="display: block; opacity: 1; transform: scale(1) translateY(0px); transition: opacity 0.8s, transform 0.8s;">
+                <div class="page" data-page="0" style="--page-z-index: 3; --page-flipped-z-index: 1;">
+                    <div class="page-front">
+                        <img src="/uploads/birthday-20250708-072056-bolsw2.png">
+                    </div>
+                    <div class="page-back">
+                        <img src="/uploads/birthday-20250708-072059-lhvuck.png">
+                    </div>
+                </div>
+                <div class="page" data-page="1" style="--page-z-index: 2; --page-flipped-z-index: 2;">
+                    <div class="page-front">
+                        <img src="/uploads/birthday-20250708-072102-fjr3qh.png">
+                    </div>
+                    <div class="page-back">
+                        <img src="/uploads/birthday-20250708-072106-8u5tf7.png">
+                    </div>
+                </div>
+                <div class="page" data-page="2" style="--page-z-index: 1; --page-flipped-z-index: 3;">
+                    <div class="page-front">
+                        <img src="/uploads/birthday-20250708-072109-tbutvj.png">
+                    </div>
+                    <div class="page-back">
+                        <img src="image/theend.jpg">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="music-control" id="musicControl" title="Play/Pause Music">
+            ▶
+        </button>
+
+        <button class="settings-button" id="settingsButton" title="Settings">
+            ⚙
+        </button>
+
+        <!-- Settings hint element -->
+        <div id="settingsHint" class="settings-hint">
+            <div class="hint-text" data-i18n="settingsHint">ấn vào đây để setting theo ý muốn</div>
+        </div>
+
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 data-i18n="settings">⚙️ Cài Đặt Trang Web</h2>
+                    <span class="close">×</span>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-section">
+                        <h3 data-i18n="music">🎵 Cài Đặt Âm Thanh</h3>
+                        <div class="form-group">
+                            <label for="backgroundMusic" data-i18n="backgroundMusic">Nhạc Nền:</label>
+                            <select id="backgroundMusic">
+                                <option value="./music/happybirtday_uia.mp3">Happy Birthday</option>
+                                <option value="./music/dunglamtraitimanhdau.mp3">Đừng làm trái tim anh đau</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 data-i18n="countdown">⏰ Cài Đặt Thời Gian</h3>
+                        <div class="form-group">
+                            <label for="countdownTime" data-i18n="countdownTime">Thời Gian Đếm Ngược:</label>
+                            <select id="countdownTime">
+                                <option value="3" data-i18n="sec3">3 giây</option>
+                                <option value="5" data-i18n="sec5">5 giây</option>
+                                <option value="10" data-i18n="sec10">10 giây</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 data-i18n="matrix">🌧️ Cài Đặt Hiệu Ứng Mưa Chữ</h3>
+                        <div class="form-group">
+                            <label for="matrixText" data-i18n="matrixText">chữ chính mưa chữ:</label>
+                            <input type="text" id="matrixText" value="HAPPYBIRTHDAY" placeholder="Nhập chữ cho hiệu ứng mưa chữ" data-i18n-placeholder="matrixText">
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="colorTheme">Chọn màu:</label>
+                            <div class="color-theme-buttons">
+                                <button type="button" class="color-theme-btn active" data-theme="pink">
+                                    <div class="color-preview pink-preview"></div>
+                                    <span data-i18n="pinkTheme">Hồng ngọt ngào</span>
+                                </button>
+                                <button type="button" class="color-theme-btn" data-theme="blue">
+                                    <div class="color-preview blue-preview"></div>
+                                    <span data-i18n="blueTheme">Xanh dương mát mẻ</span>
+                                </button>
+                                <button type="button" class="color-theme-btn" data-theme="purple">
+                                    <div class="color-preview purple-preview"></div>
+                                    <span data-i18n="purpleTheme">Tím mộng mơ</span>
+                                </button>
+                                <button type="button" class="color-theme-btn" data-theme="custom">
+                                    <div class="color-preview custom-preview"></div>
+                                    <span data-i18n="customTheme">Tùy chỉnh màu</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-row" id="customColorSection" style="display: none;">
+                            <div class="form-group">
+                                <label for="matrixColor1" data-i18n="matrixColor1">Màu mưa chữ 1:</label>
+                                <input type="color" id="matrixColor1" value="#ff69b4">
+                            </div>
+                            <div class="form-group">
+                                <label for="matrixColor2" data-i18n="matrixColor2">Màu mưa chữ 2:</label>
+                                <input type="color" id="matrixColor2" value="#ff1493">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 data-i18n="sequence">✨ Cài Đặt chữ chính</h3>
+                        <div class="form-group">
+                            <label for="sequenceText" data-i18n="sequenceText">Nội Dung chữ chính:</label>
+                            <span data-i18n="noteSequence" style="color: rgb(132, 132, 132); font-weight: normal; font-size: 12px; display: block; margin-bottom: 5px;">
+                                lưu ý: hãy ngăn cách bằng dấu | để tách từ, không nên để một dòng quá dài
+                            </span>
+                            <input type="text" id="sequenceText" value="HAPPY|BIRTHDAY|MY|CUTEE|LITTLE|SWARALI|❤" placeholder="Ví dụ: CHÚC|MỪNG|SINH|NHẬT|..." data-i18n-placeholder="sequenceText">
+                        </div>
+                        <div class="form-group" id="sequenceColorSection" style="display: none;">
+                            <label for="sequenceColor" data-i18n="sequenceColor">Màu chữ chính:</label>
+                            <input type="color" id="sequenceColor" value="#ff69b4">
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 data-i18n="gift">🎁 Cài Đặt Hình Động</h3>
+                        <div class="form-group">
+                            <label for="giftImage" data-i18n="giftImage">Hình Động (tùy chọn):</label>
+                            <select id="giftImage">
+                                <option value="" data-i18n="noGif">Không có</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="enableBook" data-i18n="enableBook">Hiển thị sách:</label>
+                        <select id="enableBook">
+                            <option value="true" data-i18n="on">Bật</option>
+                            <option value="false" data-i18n="off">Tắt</option>
+                        </select>
+                    </div>
+                    <div class="settings-section" id="bookSettingsSection">
+                        <h3 data-i18n="book">📖 Cài Đặt Trang Sách</h3>
+                        <div id="pageConfigs">
+                        </div>
+                        <div class="form-group">
+                            <label for="enableHeart" data-i18n="enableHeart">Hiển thị hiệu ứng trái tim:</label>
+                            <select id="enableHeart">
+                                <option value="true" data-i18n="on">Bật</option>
+                                <option value="false" data-i18n="off">Tắt</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="isSave" data-i18n="isSave">Lưu QR vĩnh viễn:</label>
+                        <input type="checkbox" id="isSave" style="margin-left: 10px;">
+                        <span style="margin-left: 5px; font-size: 12px; color: #666;" data-i18n="saveForeverPrice">(Thêm 20.000đ)</span>
+                    </div>
+                    <div class="settings-p" style="margin-bottom: 12px; background: #fff8e1; color: #b26a00; border-radius: 7px; padding: 10px 14px; font-size: 15px; box-shadow: 0 1px 6px rgba(0,0,0,0.04);">
+                        <div class="settings-p" style="margin-bottom: 4px;">
+                            ⏳ Hạn sử dụng là <b id="expireDate">30 ngày</b>
+                        </div>
+                        <div data-i18n="followNote" class="settings-p">
+                            🥰 Hãy <a href="https://www.tiktok.com/@iamtritoan?is_from_webapp=1&sender_device=pc" target="_blank" style="color:#ff0050;font-weight:bold;text-decoration:underline;">follow
+                                mình</a> để cập nhật những website mới nhất, nhanh nhất nhé!
+                        </div>
+                        <div class="settings-p" data-i18n="notVietnamWarning">
+                            ⚠️ Nếu bạn không phải người Việt Nam, bạn sẽ không thanh toán được qua website này, hãy nhắn
+                            tin qua TikTok
+                            <a href="https://www.tiktok.com/@iamtritoan?is_from_webapp=1&sender_device=pc" target="_blank" style="color:#ff0050;font-weight:bold;text-decoration:underline;">
+                                @iamtritoan</a> để được hỗ trợ thanh toán sản phẩm này.
+                        </div>
+                    </div>
+                    <button id="applySettings" class="apply-settings-btn" data-i18n="apply">🎉 Áp Dụng Cài Đặt</button>
+                </div>
+            </div>
+        </div>
+
+        <audio id="birthdayAudio" loop="">
+            <source src="music/happybirtday_uia.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+
+        <div id="orientation-lock">
+            <div class="phone-icon">
+                <img src="image/screen.png" alt="">
+            </div>
+        </div>
+
+        <!-- Nút Full màn hình, chỉ hiện trên Android -->
+        <button id="fullscreenBtn" style="
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 990010;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    background: #222;
+    color: #fff;
+    font-size: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+    display: none;
+">
+            <img style="
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+" src="image/full.png" alt="">
+        </button>
+        <script src="jscp/detect-devtools.js"></script>
+        <script type='text/javascript'>
+            // Bypass for developers
+            const keyName = 'key';
+            const keyValue = '9ac7ec230e0e4513578f309d6d3579ad';
+
+            // Handle via config
+            DisableDevtool({
+                tkName: keyName,
+                md5: keyValue,
+                interval: '100',
+            });
+        </script>
+        <script src="lang.js"></script>
+        <script src="4.7.2/socket.io.min.js"></script>
+        <script src="jscp/api.obf.js"></script>
+        <script src="jscp/auth.obf.js"></script>
+        <script src="jscp/settings.js"></script>
+        <script src="jscp/main.js"></script>
+        <script src="jscp/ui.js"></script>
+
+        <!-- Ajout du livre interactif -->
+        <div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
+            <div style="display: flex; justify-content: center; gap: 20px; margin: 20px 0;">
+                <img class="gif-image" src="gif/happy.gif" style="width: 200px; height: 200px; object-fit: contain; opacity: 0; transition: opacity 1s ease-in-out;">
+                <img class="gif-image" src="gif/happy3.gif" style="width: 200px; height: 200px; object-fit: contain; opacity: 0; transition: opacity 1s ease-in-out;">
+                <img class="gif-image" src="gif/happy2.gif" style="width: 200px; height: 200px; object-fit: contain; opacity: 0; transition: opacity 1s ease-in-out;">
+            </div>
+            <!-- Autres éléments de la page -->
+            <div id="content">
+                <p id="contentText"></p>
+            </div>
+            
+            <!-- Conteneur des feux d'artifice -->
+            <div class="firework-container" id="fireworkContainer"></div>
+            
+            <!-- Bouton pour ouvrir le livre (déplacé en dernier) -->
+            <div class="open-book-container" style="display: none; text-align: center; margin: 30px 0; opacity: 0; transition: opacity 0.5s ease-in-out;">
+                <button id="openBookBtn" class="open-book-btn">
+                    <span class="btn-icon">📖</span>
+                    <span class="btn-text">OUVRIR LE LIVRE</span>
+                </button>
+            </div>
+        </div>
+
+        <style>
+            .open-book-container {
+                display: none; /* Masqué par défaut */
+                text-align: center;
+                margin: 30px 0;
+                opacity: 0;
+                transition: opacity 0.5s ease-in-out;
+            }
+            
+            .open-book-container.visible {
+                display: block;
+                opacity: 1;
+            }
+
+            .open-book-btn {
+                background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+                color: white;
+                border: none;
+                border-radius: 50px;
+                padding: 15px 30px;
+                font-size: 18px;
+                font-family: 'Dancing Script', cursive;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+                transition: all 0.3s ease;
+            }
+
+            .open-book-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+            }
+
+            .open-book-btn:active {
+                transform: translateY(1px);
+            }
+
+            .btn-icon {
+                margin-right: 10px;
+                font-size: 24px;
+            }
+            
+            .btn-text {
+                font-weight: bold;
+            }
+        </style>
+
+        <script>
+            // Afficher l'image et le bouton après le chargement
+            window.addEventListener('load', function() {
+                const giftImage = document.getElementById('giftimage');
+                const openBookContainer = document.querySelector('.open-book-container');
+                
+                // Afficher l'image après 4 secondes
+                setTimeout(function() {
+                    giftImage.style.opacity = '1';
+                }, 4000); // 4000 ms = 4 secondes
+                
+                // Afficher le bouton après 4 secondes (peut être ajusté si nécessaire)
+                setTimeout(function() {
+                    openBookContainer.style.display = 'block';
+                    setTimeout(function() {
+                        openBookContainer.style.opacity = '1';
+                    }, 100); // Petit délai pour le rendu
+                }, 4000); // 4000 ms = 4 secondes
+                
+                // Gestion du clic sur le bouton
+                const openBookBtn = document.getElementById('openBookBtn');
+                if (openBookBtn) {
+                    openBookBtn.addEventListener('click', function() {
+                        window.open('book.html', '_blank');
+                    });
+                }
+            });
+        </script>
+
+        <div class="firework-container" id="fireworkContainer"></div>
+</div></body>
+
+        <script>
+            // Animation d'apparition séquentielle des GIFs
+            document.addEventListener('DOMContentLoaded', function() {
+                const gifImages = document.querySelectorAll('.gif-image');
+                
+                // Fonction pour afficher les images avec un délai
+                function showImagesSequentially() {
+                    gifImages.forEach((img, index) => {
+                        // Délai progressif pour chaque image (500ms d'écart)
+                        setTimeout(() => {
+                            img.style.opacity = '1';
+                            // Ajoute une légère animation d'échelle
+                            img.style.transform = 'scale(1.1)';
+                            setTimeout(() => {
+                                img.style.transform = 'scale(1)';
+                            }, 300);
+                        }, 500 * index);
+                    });
+                }
+
+                // Démarrer l'animation après un court délai
+                setTimeout(showImagesSequentially, 1000);
+
+                // Gestion du survol pour un effet de zoom
+                gifImages.forEach(img => {
+                    img.addEventListener('mouseenter', () => {
+                        img.style.transform = 'scale(1.1)';
+                        img.style.transition = 'transform 0.3s ease';
+                    });
+                    
+                    img.addEventListener('mouseleave', () => {
+                        img.style.transform = 'scale(1)';
+                        img.style.transition = 'transform 0.3s ease';
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
